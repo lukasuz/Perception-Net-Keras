@@ -1,5 +1,6 @@
 # Perception Net Keras
-This is an implementation of Perception Net[0] for multimodal human activity recognition. Work in progress.
+This is an implementation of Perception Net [[0]] for multimodal human activity recognition. Work in progress.
 
 
-[0]: https://arxiv.org/abs/1811.00170
+[0]: https://arxiv.org/abs/1811.00170	"PerceptionNet: A Deep Convolutional Neural Network for Late Sensor Fusion"
+
