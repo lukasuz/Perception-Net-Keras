@@ -30,7 +30,7 @@ def perception_net(input_dim, num_classes):
     # Fusion
     x = Conv2D(filters=96,
                kernel_size=(3,15),
-               strides=(3,1),
+               strides=(1,3),
                kernel_initializer='random_uniform',
                padding="same")(x)
     x = Activation('relu')(x)
