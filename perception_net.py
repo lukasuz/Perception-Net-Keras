@@ -1,33 +1,31 @@
-from keras.layers import Conv1D, Conv2D, Dropout, Activation, Dense, GlobalAveragePooling2D, MaxPool1D, Input, Reshape
+from keras.layers import Conv1D, Conv2D, Dropout, Activation, Dense, GlobalAveragePooling2D, MaxPool1D, Input, Reshape, DepthwiseConv2D, MaxPool2D
 from keras.activations import relu
 from keras.models import Model
 from keras.backend import int_shape
 
 def perception_net(input_dim, num_classes):
-    # What is the max pool size?
     # Padding not specified
     input_tensor = Input(shape=input_dim)
-
-    x = Conv1D(filters=48, 
-               kernel_size=15,
-               kernel_initializer='random_uniform',
-               padding="same")(input_tensor)
-    x = Activation('relu')(x)
-    x = MaxPool1D(pool_size=2,
-                  strides=2)(x)
-    x = Dropout(rate=0.4)(x)
-
-    x = Conv1D(filters=96,
-               kernel_size=15,
+    x = Reshape(target_shape=(input_dim[0], input_dim[1], 1))(input_tensor)
+    x = Conv2D(filters=48,
+               kernel_size=(1,15), #height, width
                kernel_initializer='random_uniform',
                padding="same")(x)
     x = Activation('relu')(x)
-    x = MaxPool1D(pool_size=2, strides=2)(x)
+    x = MaxPool2D(pool_size=(1,2),
+                  strides=(1,2))(x)
     x = Dropout(rate=0.4)(x)
 
-    x = Reshape(target_shape=(int_shape(x)[1], int_shape(x)[2], 1))(x)
+    x = Conv2D(filters=96,
+                        kernel_size=(1,15), #height, width
+                        kernel_initializer='random_uniform',
+                        padding="same")(x)
+    x = Activation('relu')(x)
+    x = MaxPool2D(pool_size=(1,2),
+                  strides=(1,2))(x)
+    x = Dropout(rate=0.4)(x)
 
-    # Fusion
+    # Fusion 
     x = Conv2D(filters=96,
                kernel_size=(3,15),
                strides=(1,3),
@@ -44,6 +42,6 @@ def perception_net(input_dim, num_classes):
 
 
 if __name__ == "__main__":
-    model = perception_net(input_dim=(128, 6), num_classes=6)
+    model = perception_net(input_dim=(6, 128), num_classes=6)
     print(model.summary())
 
