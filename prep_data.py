@@ -21,7 +21,7 @@ def get_data(signals_folder_path, label_path, signal_names, signal_data_zeros):
     for i in range(len(signal_names)):
         path = os.path.join(signals_folder_path, signal_names[i])
         data = pd.read_csv(path, sep="\s+", header=None)
-        signal_data_zeros[:,:,i] = data.to_numpy()
+        signal_data_zeros[:,i,:] = data.to_numpy()
     
     signal_data = z_normalization(signal_data_zeros)
 
@@ -37,11 +37,11 @@ def z_normalization(data):
 
 
 def get_train_data():
-    signal_data = np.zeros((7352,128,6))
+    signal_data = np.zeros((7352,6,128))
     return get_data(train_signals_folder_path, train_label_path, train_signal_names, signal_data)
 
 def get_test_data():
-    signal_data = np.zeros((2947,128,6))
+    signal_data = np.zeros((2947,6,128))
     return get_data(test_signals_folder_path, test_label_path, test_signal_names, signal_data)
 
 if __name__ == "__main__":
