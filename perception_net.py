@@ -17,9 +17,9 @@ def perception_net(input_dim, num_classes):
     x = Dropout(rate=0.4)(x)
 
     x = Conv2D(filters=96,
-                        kernel_size=(1,15), #height, width
-                        kernel_initializer='random_uniform',
-                        padding="same")(x)
+               kernel_size=(1,15), #height, width
+               kernel_initializer='random_uniform',
+               padding="same")(x)
     x = Activation('relu')(x)
     x = MaxPool2D(pool_size=(1,2),
                   strides=(1,2))(x)
@@ -28,7 +28,7 @@ def perception_net(input_dim, num_classes):
     # Fusion 
     x = Conv2D(filters=96,
                kernel_size=(3,15),
-               strides=(1,3),
+               strides=(3,1),
                kernel_initializer='random_uniform',
                padding="same")(x)
     x = Activation('relu')(x)
