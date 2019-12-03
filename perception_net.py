@@ -1,14 +1,37 @@
-from keras.layers import Conv1D, Conv2D, Dropout, Activation, Dense, GlobalAveragePooling2D, MaxPool1D, Input, Reshape, DepthwiseConv2D, MaxPool2D
+from keras.layers import Conv1D, Conv2D, Dropout, Activation, Dense, GlobalAveragePooling2D, MaxPool1D, Input, Reshape, DepthwiseConv2D, MaxPool2D, SeparableConv2D
 from keras.activations import relu
 from keras.models import Model
 from keras.backend import int_shape
 
-def perception_net(input_dim, num_classes):
-    # Padding not specified
+# Padding not specified, assume padding 'same'
+
+def perception_net(input_dim, num_classes, filters=(48, 96, 96), dilation=False):
+    """ PerceptionNet Model.
+    See paper: https://arxiv.org/abs/1811.00170
+
+    Arguments:
+        input_dim: 2D input array, where the first value is the number of signals
+            and the second the time steps.
+        num_classes: Number of classes to predicts.
+        filters: Optional, amount of feature maps employed by the convolutions.
+        dilation: Optional, true whether dilation should be employed in the
+            1D Conv blocks.
+    """
+
+    if dilation:
+        kernel_width = 8
+        dilation_rate = 2
+    else:
+        kernel_width = 15
+        dilation_rate = 1
+
     input_tensor = Input(shape=input_dim)
     x = Reshape(target_shape=(input_dim[0], input_dim[1], 1))(input_tensor)
-    x = Conv2D(filters=48,
-               kernel_size=(1,15), #height, width
+
+    # First "Conv1D" block
+    x = Conv2D(filters=filters[0],
+               kernel_size=(1,kernel_width), # height, width
+               dilation_rate=dilation_rate,
                kernel_initializer='random_uniform',
                padding="same")(x)
     x = Activation('relu')(x)
@@ -16,8 +39,10 @@ def perception_net(input_dim, num_classes):
                   strides=(1,2))(x)
     x = Dropout(rate=0.4)(x)
 
-    x = Conv2D(filters=96,
-               kernel_size=(1,15), #height, width
+    # Second "Conv1D" block
+    x = Conv2D(filters=filters[1],
+               kernel_size=(1,kernel_width), #height, width
+               dilation_rate=dilation_rate,
                kernel_initializer='random_uniform',
                padding="same")(x)
     x = Activation('relu')(x)
@@ -25,8 +50,8 @@ def perception_net(input_dim, num_classes):
                   strides=(1,2))(x)
     x = Dropout(rate=0.4)(x)
 
-    # Fusion 
-    x = Conv2D(filters=96,
+    # Late sensor fusion
+    x = Conv2D(filters=filters[2],
                kernel_size=(3,15),
                strides=(3,1),
                kernel_initializer='random_uniform',
@@ -42,6 +67,6 @@ def perception_net(input_dim, num_classes):
 
 
 if __name__ == "__main__":
-    model = perception_net(input_dim=(6, 128), num_classes=6)
+    model = perception_net(input_dim=(6, 128), num_classes=6, dilation=True)
     print(model.summary())
 
