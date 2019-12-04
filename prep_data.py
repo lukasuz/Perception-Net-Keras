@@ -38,20 +38,29 @@ def z_normalization(data):
 
 def get_train_data():
     signal_data = np.zeros((7352,6,128))
-    return get_data(train_signals_folder_path, train_label_path, train_signal_names, signal_data)
+    data, labels = get_data(train_signals_folder_path, train_label_path, train_signal_names, signal_data)
+    weights = np.sum(labels, axis=0)
+    weights = np.sum(weights) / (6 * weights) 
+    return data, labels, weights
+
 
 def get_test_data():
     signal_data = np.zeros((2947,6,128))
-    return get_data(test_signals_folder_path, test_label_path, test_signal_names, signal_data)
+    data, labels = get_data(test_signals_folder_path, test_label_path, test_signal_names, signal_data)
+    weights = np.sum(labels, axis=0)
+    weights = np.sum(weights) / (6 * weights) 
+    return data, labels, weights
 
 if __name__ == "__main__":
-    data, labels = get_train_data()
+    data, labels, weights = get_train_data()
     print("Train: ")
     print(data.shape)
     print(labels.shape)
+    print(weights)
 
-    data, labels = get_test_data()
+    data, labels, weights = get_test_data()
     print("Test: ")
     print(data.shape)
     print(labels.shape)
+    print(weights)
 
