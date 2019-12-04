@@ -67,6 +67,6 @@ def perception_net(input_dim, num_classes, filters=(48, 96, 96), dilation=False)
 
 
 if __name__ == "__main__":
-    model = perception_net(input_dim=(6, 128), num_classes=6, dilation=True)
+    model = perception_net(input_dim=(6, 128), num_classes=6)
     print(model.summary())
 
