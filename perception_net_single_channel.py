@@ -3,7 +3,7 @@ from keras.activations import relu
 from keras.models import Model
 from keras.backend import int_shape
 
-def perception_net(input_dim, num_classes, filters=(36, 72, 72), dilation=False):
+def perception_net_single_channel(input_dim, num_classes, filters=(36, 72, 72), dilation=False):
     """ Single channel PerceptionNet model.
     Modificated version which uses separate convolutions for each channels.
     See paper: https://arxiv.org/abs/1811.00170
