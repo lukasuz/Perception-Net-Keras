@@ -1,10 +1,10 @@
-from keras.layers import Conv1D, Conv2D, Dropout, Activation, Dense, GlobalAveragePooling2D, MaxPool1D, Input, Reshape, concatenate, Lambda
+from keras.layers import Conv1D, Conv2D, Dropout, Activation, Dense, GlobalAveragePooling2D, MaxPool1D, Input, Reshape, concatenate, Lambda, Concatenate
 from keras.activations import relu
 from keras.models import Model
 from keras.backend import int_shape
 
-def perception_net_single_channel(input_dim, num_classes, filters=(36, 72, 72), dilation=False):
-    """ Single channel PerceptionNet model.
+def perception_net_separate_channel(input_dim, num_classes, filters=(36, 72, 72), dilation=False, separate_modalities=False):
+    """ Separate channel PerceptionNet model.
     Modificated version which uses separate convolutions for each channels.
     See paper: https://arxiv.org/abs/1811.00170
 
@@ -59,22 +59,41 @@ def perception_net_single_channel(input_dim, num_classes, filters=(36, 72, 72), 
     x = Lambda(lambda x: concatenate(x, axis=1))(feature_maps)
 
     # Late sensor fusion
-    x = Conv2D(filters=filters[2],
+    if separate_modalities: # Convolve separate modalites, mentioned in report, but not tested yet
+        mod1 = Lambda(lambda x: x[:,:3,:])(x)
+        mod2 = Lambda(lambda x: x[:,3:,:])(x)
+
+        mod1 = Conv2D(filters=int(filters[2]/2),
                kernel_size=(3,15),
                strides=(3,1),
                kernel_initializer='random_uniform',
-               padding="same")(x)
-    x = Activation('relu')(x)
+               padding="same")(mod1)
+
+        mod2 = Conv2D(filters=int(filters[2]/2),
+               kernel_size=(3,15),
+               strides=(3,1),
+               kernel_initializer='random_uniform',
+               padding="same")(mod2)
+
+        x = Concatenate(axis=1)([mod1, mod2])
+    else:
+        x = Conv2D(filters=filters[2],
+                kernel_size=(3,15),
+                strides=(3,1),
+                kernel_initializer='random_uniform',
+                padding="same")(x)
+        x = Activation('relu')(x)
+
     x = GlobalAveragePooling2D()(x)
     x = Dropout(rate=0.4)(x)
 
     # Classification
     x = Dense(units=num_classes, activation='softmax')(x)
 
-    return Model(input_tensor, x, name='PerceptionNetSingleChannel')
+    return Model(input_tensor, x, name='PerceptionNetSeparateChannel')
 
 
 if __name__ == "__main__":
-    model = perception_net(input_dim=(6, 128), num_classes=6)
+    model = perception_net_separate_channel(input_dim=(6, 128), num_classes=6, filters=(36,72,72))
     print(model.summary())
 
