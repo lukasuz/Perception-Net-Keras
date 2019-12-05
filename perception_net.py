@@ -5,7 +5,7 @@ from keras.backend import int_shape
 
 # Padding not specified, assume padding 'same'
 
-def perception_net(input_dim, num_classes, filters=(48, 96, 96), dilation=False):
+def perception_net(input_dim, num_classes, filters=(48, 96, 96), dilation=False, separate_modalities=False):
     """ PerceptionNet Model.
     See paper: https://arxiv.org/abs/1811.00170
 
@@ -67,6 +67,6 @@ def perception_net(input_dim, num_classes, filters=(48, 96, 96), dilation=False)
 
 
 if __name__ == "__main__":
-    model = perception_net(input_dim=(6, 128), num_classes=6)
+    model = perception_net(input_dim=(6, 128), num_classes=6, filters=(12,24,24), dilation=False)
     print(model.summary())
 
